@@ -68,7 +68,7 @@ app.get('/hashCodes', async (req, res) => {
     }
   });
 
-  let score = 0;
+  let score = 10;
 
   app.post('/score', async (req, res) => {
     try {
@@ -79,7 +79,7 @@ app.get('/hashCodes', async (req, res) => {
       }
   
       // Add the previous score to the received score
-      score += newScore;
+      score -= newScore;
   
       // Save the updated score to the database
       const newScoreEntry = new Score({ value: score });
