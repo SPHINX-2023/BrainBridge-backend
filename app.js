@@ -21,9 +21,16 @@ const hashCodeSchema = new mongoose.Schema({
     required: true
   }
 });
-
-// Create a model for hash codes
-const HashCode = mongoose.model('HashCode', hashCodeSchema);
+const scoreSchema = new mongoose.Schema({
+    value: {
+      type: Number,
+      required: true
+    }
+  });
+  
+  // Create a model for hash codes
+  const HashCode = mongoose.model('HashCode', hashCodeSchema);
+  const Score = mongoose.model('Score', scoreSchema);
 
 // Middleware
 app.use(bodyParser.json());
@@ -40,6 +47,7 @@ app.post('/hashCodes', async (req, res) => {
     const newHashCode = new HashCode({ hash });
     // Save the hash code to the database
     await newHashCode.save();
+    
 
     return res.status(201).json({ message: 'Hash code stored successfully' });
   } catch (error) {
@@ -60,6 +68,44 @@ app.get('/hashCodes', async (req, res) => {
     }
   });
 
+  let score = 0;
+
+  app.post('/score', async (req, res) => {
+    try {
+      const { newScore } = req.body;
+  
+      if (newScore === undefined || typeof newScore !== 'number' || !Number.isInteger(newScore)) {
+        return res.status(400).json({ error: 'Invalid score format. Score must be an integer.' });
+      }
+  
+      // Add the previous score to the received score
+      score += newScore;
+  
+      // Save the updated score to the database
+      const newScoreEntry = new Score({ value: score });
+      await newScoreEntry.save();
+  
+      // Return the updated score
+      return res.status(200).json({ score });
+    } catch (error) {
+      console.error('Error updating score:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  // Route to retrieve the current score
+  app.get('/score', async (req, res) => {
+    try {
+      // Retrieve the latest score from the database
+      const latestScoreEntry = await Score.findOne().sort({ _id: -1 });
+      const latestScore = latestScoreEntry ? latestScoreEntry.value : 0;
+  
+      return res.status(200).json({ score: latestScore });
+    } catch (error) {
+      console.error('Error retrieving score:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
