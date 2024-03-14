@@ -1,10 +1,13 @@
-// app.js
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const cors = require('cors')
+
 
 const app = express();
 const PORT = process.env.PORT || 8000;
+
+
 
 // Connect to MongoDB
 mongoose.connect('mongodb+srv://simranyadav464:7JngErgDPMs5OYRZ@cluster0.agzriqc.mongodb.net/?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
@@ -33,6 +36,7 @@ const scoreSchema = new mongoose.Schema({
   const Score = mongoose.model('Score', scoreSchema);
 
 // Middleware
+app.use(cors());
 app.use(bodyParser.json());
 
 // Route to handle POST requests for adding hash codes
