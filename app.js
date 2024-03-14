@@ -78,19 +78,21 @@ app.get('/hashCodes', async (req, res) => {
         return res.status(400).json({ error: 'Invalid score format. Score must be an integer.' });
       }
   
-      // Add the previous score to the received score
       score -= newScore;
   
-      // Save the updated score to the database
       const newScoreEntry = new Score({ value: score });
       await newScoreEntry.save();
   
-      // Return the updated score
+      if(score<=0){
+        score=10;
+      }
       return res.status(200).json({ score });
+      
     } catch (error) {
       console.error('Error updating score:', error);
       return res.status(500).json({ error: 'Internal server error' });
     }
+    
   });
   
   // Route to retrieve the current score
